@@ -1,0 +1,11 @@
+# Frontend
+frontend/node_modules/
+frontend/build/
+
+# Backend
+backend/__pycache__/
+backend/server_uploads/
+backend/venv/
+
+# Environment Variables
+.env
