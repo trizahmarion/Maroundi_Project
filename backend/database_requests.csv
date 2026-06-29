@@ -1,0 +1,2 @@
+id,title,category,location,timeline,price,status,requester,runner,bids,messages,date,rated_by_requester,rated_by_runner
+1,Pick-up dry cleaning,delivery,Juja,2026-06-27T12:08,250.0,completed,James Gichuru,Gichuru James,[],"[{""sender"": ""Gichuru James"", ""text"": ""Hey, where are you?"", ""timestamp"": ""17:09""}, {""sender"": ""James Gichuru"", ""text"": ""At Greenmall"", ""timestamp"": ""17:10""}]",2026-06-26,False,True

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { User, Truck, Sun, Moon, ArrowLeft, Star, AlertTriangle, LogOut, Camera, FileText, CheckCircle, Smartphone, MapPin, Clock, Edit3, Shield, Send } from 'lucide-react';
 
-const API_URL = 'http://127.0.0.1:5000/api';
+const API_URL = 'https://maroundi-project.onrender.com/';
 const getImgUrl = (path) => path?.startsWith('/') ? `http://127.0.0.1:5000${path}` : path;
 
 const BASE_PRICES = { delivery: 200, pickup: 200, queue: 300, shopping: 250, other: 200 };
