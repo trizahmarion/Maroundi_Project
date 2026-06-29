@@ -9,7 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = 'server_uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf', 'heic', 'HEIC', 'webp'}
 USERS_FILE = 'database_users.csv'
 REQS_FILE = 'database_requests.csv'
 
@@ -144,11 +144,14 @@ def register():
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
-    if data.get('name') == 'Admin' and data.get('password') == '@Dm1n!6':
+    input_name = data.get('name', '').strip() # This strips away accidental spaces!
+    
+    # Make it case-insensitive and space-resistant
+    if input_name.lower() == 'admin' and data.get('password') == '@Dm1n!6':
         return jsonify({'id': 0, 'name': 'Admin', 'role': 'admin', 'is_verified': True, 'profile_pic': ''})
 
     users_db = read_users()
-    user = next((u for u in users_db if u['name'].lower() == data.get('name', '').lower()), None)
+    user = next((u for u in users_db if u['name'].lower() == input_name.lower()), None)
     if user and check_password_hash(user['password_hash'], data.get('password')):
         return jsonify({k:v for k,v in user.items() if k != 'password_hash'})
     return jsonify({"error": "Invalid name or password."}), 401
