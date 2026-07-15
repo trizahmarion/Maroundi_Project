@@ -3,8 +3,8 @@ import axios from 'axios';
 import { User, Truck, Sun, Moon, ArrowLeft, Star, AlertTriangle, LogOut, Camera, FileText, CheckCircle, Smartphone, MapPin, Clock, Edit3, Shield, Send } from 'lucide-react';
 
 const API_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:5000' 
-    : 'https://maroundi-project.onrender.com';
+    ? 'http://localhost:5000/api' 
+    : 'https://maroundi-project.onrender.com/api';
 
 const getImgUrl = (path) => {
     if (!path) return ''; 
