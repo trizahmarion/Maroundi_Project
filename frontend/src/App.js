@@ -2,8 +2,14 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { User, Truck, Sun, Moon, ArrowLeft, Star, AlertTriangle, LogOut, Camera, FileText, CheckCircle, Smartphone, MapPin, Clock, Edit3, Shield, Send } from 'lucide-react';
 
-const API_URL = 'https://maroundi-project.onrender.com/';
-const getImgUrl = (path) => path?.startsWith('/') ? `https://maroundi-api.onrender.com${path}` : path;
+const API_URL = 'http://localhost:5000/api';
+const getImgUrl = (path) => {
+    if (!path) return ''; 
+    if (path.startsWith('http') || path.startsWith('data:')) { 
+        return path;
+    }
+    return `${API_URL}${path}`; 
+}
 
 const BASE_PRICES = { delivery: 200, pickup: 200, queue: 300, shopping: 250, other: 200 };
 
@@ -210,7 +216,8 @@ function LoginScreen({ setUser, setView }) {
     e.preventDefault();
     try {
       const res = await axios.post(`${API_URL}/login`, form);
-      setUser({...res.data, password: form.password});
+      localStorage.setItem('token', res.data.token);
+      setUser(res.data.user);
       setView('dashboard');
     } catch (err) { alert("Invalid Name or Password."); }
   };
@@ -484,15 +491,42 @@ function AdminView() {
   const [users, setUsers] = useState([]);
   const [tab, setTab] = useState('database');
 
-  const refresh = async () => {
-      const res = await axios.get(`${API_URL}/admin/users`);
-      setUsers(res.data);
+  // 1. Grab the token from browser storage
+  const token = localStorage.getItem('token');
+  
+  // 2. Create a reusable header configuration
+  const authConfig = {
+      headers: { Authorization: `Bearer ${token}` }
   };
+
+  const refresh = async () => {
+      try {
+          // Add authConfig as the second argument for GET requests
+          const res = await axios.get(`${API_URL}/admin/users`, authConfig);
+          setUsers(res.data);
+      } catch (err) {
+          console.error("Failed to authenticate or fetch users:", err);
+          // If this fails, the token is likely missing or expired
+      }
+  };
+  
   useEffect(() => { refresh(); }, []);
 
-  const verifyUser = async (id) => { await axios.post(`${API_URL}/users/verify`, { id }); refresh(); };
-  const toggleHold = async (id) => { await axios.post(`${API_URL}/admin/toggle_hold`, { id }); refresh(); };
-  const approveEdit = async (id) => { await axios.post(`${API_URL}/admin/approve_edit`, { id }); refresh(); };
+  // Add authConfig as the THIRD argument for POST requests
+  const verifyUser = async (id) => { 
+      await axios.post(`${API_URL}/users/verify`, { id }, authConfig); 
+      refresh(); 
+  };
+  
+  const toggleHold = async (id) => { 
+      await axios.post(`${API_URL}/admin/toggle_hold`, { id }, authConfig); 
+      refresh(); 
+  };
+  
+  const approveEdit = async (id) => { 
+      await axios.post(`${API_URL}/admin/approve_edit`, { id }, authConfig); 
+      refresh(); 
+  };
 
   const pending = users.filter(u => !u.is_verified && u.role !== 'admin');
   const suspended = users.filter(u => u.is_held);
