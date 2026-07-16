@@ -87,7 +87,6 @@ class User(db.Model):
             'date_joined': self.date_joined
         }
 
-
 class ErrandRequest(db.Model):
     __tablename__ = 'errands'
     
@@ -153,7 +152,10 @@ def upload_file():
     if not allowed_file(file.filename):
         return jsonify({"error": "File type not allowed"}), 400
     safe_filename = secure_filename(file.filename)
-    return jsonify({"message": "File securely uploaded!", "filename": safe_filename}), 200
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], safe_filename))
+    return jsonify({
+        "message": "File securely uploaded!", "url": f"/uploads/{safe_filename}"
+    }), 200
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -219,7 +221,7 @@ def request_edit():
         return jsonify({"message": "Profile edit submitted for Admin approval."})
     return jsonify({"error": "User not found"}), 404
 
-@app.route('/api/users', methods=['GET'])
+@app.route('/api/admin/users', methods=['GET'])
 @jwt_required()
 def get_users():
     current_user = get_jwt_identity()
@@ -230,6 +232,9 @@ def get_users():
 
 @app.route('/api/users/verify', methods=['POST'])
 def verify_user():
+    current user = get_jwt_identity()
+    if current_user.get('role') != 'admin':
+        return jsonify({"error": "Unauthorized access."}), 403
     user = User.query.get(request.json.get('id'))
     if user:
         user.is_verified = True
