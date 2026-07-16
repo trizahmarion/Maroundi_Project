@@ -232,7 +232,7 @@ def get_users():
 
 @app.route('/api/users/verify', methods=['POST'])
 def verify_user():
-    current user = get_jwt_identity()
+    current_user = get_jwt_identity()
     if current_user.get('role') != 'admin':
         return jsonify({"error": "Unauthorized access."}), 403
     user = User.query.get(request.json.get('id'))
