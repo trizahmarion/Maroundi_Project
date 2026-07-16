@@ -55,7 +55,7 @@ export default function App() {
 
   useEffect(() => { if(user) checkUnratedTasks(user); }, [user]);
 
-const renderView = () => {
+const renderView = (setUsers, refreshUser) => {
   if (view === 'landing') return <LandingPage setView={setView} darkMode={darkMode} setDarkMode={setDarkMode} />;
   if (view === 'login') return <LoginScreen setUser={setUser} setView={setView} />;
   if (view === 'register-req') return <RegisterForm role="requester" setView={setView} />;
