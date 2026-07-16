@@ -28,15 +28,19 @@ export default function App() {
     else document.documentElement.classList.remove('dark');
   }, [darkMode]);
 
-  const refreshUser = async () => {
-    if(user?.role !== 'admin') {
-      try {
-        const res = await axios.post(`${API_URL}/login`, {name: user.name, password: user.password});
-        setUser({...res.data, password: user.password});
-        checkUnratedTasks(res.data);
-      } catch(e) {}
+  const refresh = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return console.error("No token found!"); // Stop if no token
+    
+    try {
+        const res = await axios.get(`${API_URL}/admin/users`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        setUsers(res.data);
+    } catch (err) {
+        console.error("Failed to fetch users:", err);
     }
-  }
+};
 
   const checkUnratedTasks = async (currentUser) => {
     try {
