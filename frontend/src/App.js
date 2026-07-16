@@ -60,7 +60,11 @@ const renderView = () => {
   if (user) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-100 transition-colors">
-        <Navbar user={user} onLogout={() => {setUser(null); setView('landing');}} darkMode={darkMode} setDarkMode={setDarkMode} />
+      <Navbar user={user} onLogout={() => {
+          localStorage.removeItem('token'); // Clear token from localStorage
+          setUser(null); 
+          setView('landing');
+      }} darkMode={darkMode} setDarkMode={setDarkMode} />
         
         {unratedTask && <RatingModal task={unratedTask} user={user} onClose={() => {setUnratedTask(null); refreshUser();}} />}
 
@@ -503,22 +507,20 @@ function AdminView() {
   const [users, setUsers] = useState([]);
   const [tab, setTab] = useState('database');
 
-  // 1. Grab the token from browser storage
-  const token = localStorage.getItem('token');
-  
-  // 2. Create a reusable header configuration
-  const authConfig = {
-      headers: { Authorization: `Bearer ${token}` }
-  };
-
   const refresh = async () => {
+    const currentToken = localStorage.getItem('token');
+    if (!currentToken || currentToken === "undefined" || currentToken === "null") {
+        console.error("Corrupt token detected! Please log out, then log back in again.");
+        return;
+    }
       try {
-          // Add authConfig as the second argument for GET requests
-          const res = await axios.get(`${API_URL}/admin/users`, authConfig);
+          // authConfig as second argument for GET requests
+          const res = await axios.get(`${API_URL}/admin/users`, {
+            headers: { Authorization: `Bearer ${currentToken}` }
+          });
           setUsers(res.data);
       } catch (err) {
-          console.error("Failed to authenticate or fetch users:", err);
-          // If this fails, the token is likely missing or expired
+          console.error("API Error:", err.response?.data || err);
       }
   };
   
