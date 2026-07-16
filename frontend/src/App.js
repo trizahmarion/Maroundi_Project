@@ -28,19 +28,15 @@ export default function App() {
     else document.documentElement.classList.remove('dark');
   }, [darkMode]);
 
-  const refresh = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return console.error("No token found!"); // Stop if no token
-    
-    try {
-        const res = await axios.get(`${API_URL}/admin/users`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        setUsers(res.data);
-    } catch (err) {
-        console.error("Failed to fetch users:", err);
+  const refreshUser = async () => {
+    if(user?.role !== 'admin') {
+      try {
+        const res = await axios.post(`${API_URL}/login`, {name: user.name, password: user.password});
+        setUser({...res.data.user, password: user.password});
+        checkUnratedTasks(res.data.user);
+      } catch(e) {}
     }
-};
+  }
 
   const checkUnratedTasks = async (currentUser) => {
     try {
@@ -55,7 +51,7 @@ export default function App() {
 
   useEffect(() => { if(user) checkUnratedTasks(user); }, [user]);
 
-const renderView = (setUsers, refreshUser) => {
+const renderView = () => {
   if (view === 'landing') return <LandingPage setView={setView} darkMode={darkMode} setDarkMode={setDarkMode} />;
   if (view === 'login') return <LoginScreen setUser={setUser} setView={setView} />;
   if (view === 'register-req') return <RegisterForm role="requester" setView={setView} />;
@@ -519,7 +515,7 @@ function AdminView() {
       try {
           // Add authConfig as the second argument for GET requests
           const res = await axios.get(`${API_URL}/admin/users`, authConfig);
-          setUsers(res.data);
+          setUser(res.data);
       } catch (err) {
           console.error("Failed to authenticate or fetch users:", err);
           // If this fails, the token is likely missing or expired
