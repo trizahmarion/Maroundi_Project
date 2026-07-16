@@ -33,9 +33,15 @@ ALLOWED_ORIGINS = [
     "http://localhost:3000",                 
     "maroundi-project.vercel.app"
 ]
+
 CORS(app, resources={
-    r"/*": {"origins": ALLOWED_ORIGINS}
+    r"/*": {
+        "origins": ["https://maroundi-project.vercel.app", "http://localhost:3000"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    }
 })
+
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf'}
 
 def allowed_file(filename):
