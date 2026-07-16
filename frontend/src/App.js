@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { User, Truck, Sun, Moon, ArrowLeft, Star, AlertTriangle, LogOut, Camera, FileText, CheckCircle, Smartphone, MapPin, Clock, Edit3, Shield, Send } from 'lucide-react';
+import { Analytics } from "@vercel/analytics/react";
 
 const API_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:5000/api' 
@@ -50,6 +51,7 @@ export default function App() {
 
   useEffect(() => { if(user) checkUnratedTasks(user); }, [user]);
 
+const renderView = () => {
   if (view === 'landing') return <LandingPage setView={setView} darkMode={darkMode} setDarkMode={setDarkMode} />;
   if (view === 'login') return <LoginScreen setUser={setUser} setView={setView} />;
   if (view === 'register-req') return <RegisterForm role="requester" setView={setView} />;
@@ -84,6 +86,13 @@ export default function App() {
     );
   }
   return null;
+};
+return (
+    <>
+      {renderView()}
+      <Analytics />
+    </>
+  );
 }
 
 // --- RATING MODAL ---
