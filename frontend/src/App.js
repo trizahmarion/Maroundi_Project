@@ -515,7 +515,7 @@ function AdminView() {
       try {
           // Add authConfig as the second argument for GET requests
           const res = await axios.get(`${API_URL}/admin/users`, authConfig);
-          setUser(res.data);
+          setUsers(res.data);
       } catch (err) {
           console.error("Failed to authenticate or fetch users:", err);
           // If this fails, the token is likely missing or expired
