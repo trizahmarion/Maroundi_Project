@@ -34,13 +34,12 @@ ALLOWED_ORIGINS = [
     "maroundi-project.vercel.app"
 ]
 
-CORS(app, resources={
-    r"/*": {
-        "origins": ["https://maroundi-project.vercel.app", "http://localhost:3000"],
-        "allow_headers": ["Content-Type", "Authorization"],
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-    }
-})
+CORS(app, 
+     origins=[
+         "https://maroundi-project.vercel.app",
+         "http://localhost:3000"
+     ], 
+     supports_credentials=True)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf'}
 
@@ -145,7 +144,6 @@ def validate_password(password):
 
 # endpoints
 @app.route('/api/upload', methods=['POST'])
-@jwt_required()
 def upload_file():
     if 'file' not in request.files: 
         return jsonify({"error": "No file detected"}), 400
