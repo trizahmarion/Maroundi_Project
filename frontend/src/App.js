@@ -507,6 +507,9 @@ function AdminView() {
   const [users, setUsers] = useState([]);
   const [tab, setTab] = useState('database');
 
+  const token = localStorage.getItem('token');
+  const authConfig = { headers: { Authorization: `Bearer ${token}` } };
+  
   const refresh = async () => {
     const currentToken = localStorage.getItem('token');
     if (!currentToken || currentToken === "undefined" || currentToken === "null") {
