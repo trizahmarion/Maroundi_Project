@@ -203,7 +203,7 @@ def login():
     # Pull user from Supabase PostgreSQL
     user = User.query.filter(db.func.lower(User.name) == input_name.lower()).first()
     if user and check_password_hash(user.password_hash, data.get('password')):
-        access_token = create_access_token(identity={'id': user.id, 'role': user.role})
+        access_token = create_access_token(identity=str(user.name)) #only string name is stored in token
         user_data = user.to_dict()
         return jsonify({
             'user': user_data,
@@ -224,16 +224,19 @@ def request_edit():
 @app.route('/api/admin/users', methods=['GET'])
 @jwt_required()
 def get_users():
-    current_user = get_jwt_identity()
-    if current_user.get('role') != 'admin':
+    current_username = get_jwt_identity()
+    admin_check = User.query.filter_by(name=current_username).first()
+    if not admin_check or admin_check.role != 'admin':
         return jsonify({"error": "Unauthorized access."}), 403
     users = User.query.filter(User.role != 'admin').all()
     return jsonify([user.to_dict() for user in users]), 200
 
 @app.route('/api/users/verify', methods=['POST'])
+@jwt_required()
 def verify_user():
-    current_user = get_jwt_identity()
-    if current_user.get('role') != 'admin':
+    current_username = get_jwt_identity()
+    admin_check = User.query.filter_by(name=current_username).first()
+    if not admin_check or admin_check.role != 'admin':
         return jsonify({"error": "Unauthorized access."}), 403
     user = User.query.get(request.json.get('id'))
     if user:
