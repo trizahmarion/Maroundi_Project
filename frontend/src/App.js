@@ -7,21 +7,31 @@ const API_URL = window.location.hostname === 'localhost'
     ? 'http://localhost:5000/api' 
     : 'https://maroundi-project.onrender.com/api';
 
+
+const BASE_PRICES = { delivery: 200, pickup: 200, queue: 300, shopping: 250, other: 200 };
+
 const getImgUrl = (path) => {
     if (!path) return ''; 
     if (path.startsWith('http') || path.startsWith('data:')) { 
         return path;
     }
     return `${API_URL}${path}`; 
-}
-
-const BASE_PRICES = { delivery: 200, pickup: 200, queue: 300, shopping: 250, other: 200 };
+};
 
 export default function App() {
   const [user, setUser] = useState(null);
   const [view, setView] = useState('landing');
   const [darkMode, setDarkMode] = useState(false);
   const [unratedTask, setUnratedTask] = useState(null);
+  
+  // 1. POPUP STATE ADDED HERE
+  const [popup, setPopup] = useState(null); 
+
+  // 2. HELPER FUNCTION TO TRIGGER POPUPS
+  const showPopup = (msg, type = 'success') => {
+      setPopup({ msg, type });
+      setTimeout(() => setPopup(null), 3000);
+  };
 
   useEffect(() => {
     if (darkMode) document.documentElement.classList.add('dark');
@@ -51,51 +61,61 @@ export default function App() {
 
   useEffect(() => { if(user) checkUnratedTasks(user); }, [user]);
 
-const renderView = () => {
-  if (view === 'landing') return <LandingPage setView={setView} darkMode={darkMode} setDarkMode={setDarkMode} />;
-  if (view === 'login') return <LoginScreen setUser={setUser} setView={setView} />;
-  if (view === 'register-req') return <RegisterForm role="requester" setView={setView} />;
-  if (view === 'register-run') return <RegisterForm role="runner" setView={setView} />;
-  
-  if (user) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-100 transition-colors">
-      <Navbar user={user} onLogout={() => {
-          localStorage.removeItem('token'); // Clear token from localStorage
-          setUser(null); 
-          setView('landing');
-      }} darkMode={darkMode} setDarkMode={setDarkMode} />
-        
-        {unratedTask && <RatingModal task={unratedTask} user={user} onClose={() => {setUnratedTask(null); refreshUser();}} />}
+  const renderView = () => {
+    if (view === 'landing') return <LandingPage setView={setView} darkMode={darkMode} setDarkMode={setDarkMode} />;
+    if (view === 'login') return <LoginScreen setUser={setUser} setView={setView} showPopup={showPopup} />;
+    if (view === 'register-req') return <RegisterForm role="requester" setView={setView} showPopup={showPopup} />;
+    if (view === 'register-run') return <RegisterForm role="runner" setView={setView} showPopup={showPopup} />;
+    
+    if (user) {
+      return (
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-100 transition-colors">
+        <Navbar user={user} onLogout={() => {
+            localStorage.removeItem('token');
+            setUser(null); 
+            setView('landing');
+            showPopup("Logged out successfully");
+        }} darkMode={darkMode} setDarkMode={setDarkMode} />
+          
+          {unratedTask && <RatingModal task={unratedTask} user={user} onClose={() => {setUnratedTask(null); refreshUser();}} showPopup={showPopup} />}
 
-        <div className="p-4 sm:p-6 max-w-6xl mx-auto">
-          {user.is_held && (
-            <div className="bg-red-100 dark:bg-red-900/30 border-l-4 border-red-500 text-red-800 dark:text-red-200 p-4 mb-6 rounded-r">
-              <p className="font-bold flex items-center gap-2"><AlertTriangle size={20}/> Account Suspended</p>
-              <p className="text-sm mt-1">Your rating dropped below 3.5 stars after your initial 3-task grace period, or an admin placed a hold on your account. Action restricted.</p>
-            </div>
-          )}
-          {!user.is_verified && user.role !== 'admin' && (
-            <div className="bg-orange-100 dark:bg-orange-900/30 border-l-4 border-orange-500 text-orange-800 dark:text-orange-200 p-4 mb-6 rounded-r">
-              <p className="font-bold flex items-center gap-2"><AlertTriangle size={20}/> Verification Pending</p>
-              <p className="text-sm mt-1">Your account is restricted until Admin reviews your details.</p>
-            </div>
-          )}
+          <div className="p-4 sm:p-6 max-w-6xl mx-auto">
+            {user.is_held && (
+              <div className="bg-red-100 dark:bg-red-900/30 border-l-4 border-red-500 text-red-800 dark:text-red-200 p-4 mb-6 rounded-r">
+                <p className="font-bold flex items-center gap-2"><AlertTriangle size={20}/> Account Suspended</p>
+                <p className="text-sm mt-1">Your rating dropped below 3.5 stars after your initial 3-task grace period, or an admin placed a hold on your account. Action restricted.</p>
+              </div>
+            )}
+            {!user.is_verified && user.role !== 'admin' && (
+              <div className="bg-orange-100 dark:bg-orange-900/30 border-l-4 border-orange-500 text-orange-800 dark:text-orange-200 p-4 mb-6 rounded-r">
+                <p className="font-bold flex items-center gap-2"><AlertTriangle size={20}/> Verification Pending</p>
+                <p className="text-sm mt-1">Your account is restricted until Admin reviews your details.</p>
+              </div>
+            )}
 
-          {user.role === 'requester' && <RequesterView user={user} refreshUser={refreshUser}/>}
-          {user.role === 'runner' && <RunnerView user={user} refreshUser={refreshUser}/>}
-          {user.role === 'admin' && <AdminView />}
+            {/* PASSING SHOWPOPUP DOWN TO VIEWS */}
+            {user.role === 'requester' && <RequesterView user={user} refreshUser={refreshUser} showPopup={showPopup} />}
+            {user.role === 'runner' && <RunnerView user={user} refreshUser={refreshUser} showPopup={showPopup} />}
+            {user.role === 'admin' && <AdminView showPopup={showPopup} />}
+          </div>
         </div>
-      </div>
-    );
-  }
-  return null;
-};
-return (
-    <>
-      {renderView()}
-      <Analytics />
-    </>
+      );
+    }
+    return null;
+  };
+
+  return (
+      <>
+        {/* 3. THIS RENDERS THE POPUP ON SCREEN */}
+        {popup && (
+            <div className={`fixed top-5 right-5 p-4 rounded-xl shadow-2xl z-[999] text-white font-bold transition-all transform flex items-center gap-2 ${popup.type === 'error' ? 'bg-red-500' : 'bg-emerald-500'}`}>
+                {popup.type === 'success' ? <CheckCircle size={20}/> : <AlertTriangle size={20}/>}
+                {popup.msg}
+            </div>
+        )}
+        {renderView()}
+        <Analytics />
+      </>
   );
 }
 
@@ -208,7 +228,6 @@ function RegisterForm({ role, setView }) {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4 py-12">
       <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-xl w-full max-w-md border border-slate-100 dark:border-slate-700">
-        <button onClick={() => setView('landing')} className="mb-6 flex items-center text-slate-400"><ArrowLeft size={16} className="mr-2"/> Back</button>
         <h2 className="text-3xl font-bold mb-6 dark:text-white capitalize">Register as {role}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex gap-4">
@@ -325,12 +344,13 @@ function UserProfile({ user, refreshUser }) {
 }
 
 // --- REQUESTER VIEW ---
-function RequesterView({ user, refreshUser }) {
+function RequesterView({ user, refreshUser, showPopup }) {
   const [requests, setRequests] = useState([]);
-  const [tab, setTab] = useState('post'); // post, history
-  
-  // Post Form State
+  const [tab, setTab] = useState('post'); 
   const [form, setForm] = useState({ title: '', category: 'delivery', location: '', timeline: '', price: BASE_PRICES['delivery'] });
+
+  // Format today's date so the input blocks past dates
+  const todayDateTime = new Date().toISOString().slice(0, 16);
 
   const fetchRequests = async () => {
     const res = await axios.get(`${API_URL}/requests`);
@@ -346,21 +366,22 @@ function RequesterView({ user, refreshUser }) {
 
   const handlePost = async (e) => {
     e.preventDefault();
-    if(user.is_held || !user.is_verified) return alert("Action restricted. Awaiting admin verification or account is held.");
-    if(form.price < BASE_PRICES[form.category]) return alert(`Minimum price for ${form.category} is KES ${BASE_PRICES[form.category]}`);
+    if(user.is_held || !user.is_verified) return showPopup("Action restricted. Awaiting admin verification or account is held.", "error");
+    if(form.price < BASE_PRICES[form.category]) return showPopup(`Minimum price for ${form.category} is KES ${BASE_PRICES[form.category]}`, "error");
     
     try {
         await axios.post(`${API_URL}/requests`, { ...form, requester: user.name });
         setForm({ title: '', category: 'delivery', location: '', timeline: '', price: BASE_PRICES['delivery'] });
-        alert("Errand Posted!");
+        showPopup("Errand Posted Successfully!", "success");
         fetchRequests();
         setTab('history');
-    } catch(err) { alert(err.response?.data?.error); }
+    } catch(err) { showPopup(err.response?.data?.error || "Error posting errand", "error"); }
   };
 
   const acceptBid = async (taskId, runnerName, bidAmount) => {
-      if(user.is_held || !user.is_verified) return alert("Action restricted.");
+      if(user.is_held || !user.is_verified) return showPopup("Action restricted.", "error");
       await axios.post(`${API_URL}/requests/accept_bid`, { task_id: taskId, runner_name: runnerName, bid_amount: bidAmount });
+      showPopup(`Bid accepted from ${runnerName}!`, "success");
       fetchRequests();
   };
 
@@ -394,7 +415,8 @@ function RequesterView({ user, refreshUser }) {
                     </div>
                     <div>
                        <label className="block text-sm font-bold text-slate-500 mb-1">Timeline</label>
-                       <input required type="datetime-local" className="w-full p-4 border rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-white disabled:opacity-50" disabled={user.is_held || !user.is_verified} value={form.timeline} onChange={e=>setForm({...form, timeline: e.target.value})} />
+                       {/* min attribute applied here to block past dates */}
+                       <input required type="datetime-local" min={todayDateTime} className="w-full p-4 border rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-white disabled:opacity-50" disabled={user.is_held || !user.is_verified} value={form.timeline} onChange={e=>setForm({...form, timeline: e.target.value})} />
                     </div>
                 </div>
                 <div>
@@ -412,7 +434,6 @@ function RequesterView({ user, refreshUser }) {
                {requests.length === 0 && <p className="text-slate-500 col-span-full">No errands posted yet.</p>}
                {requests.map(req => (
                    <TaskCard key={req.id} task={req} user={user} refresh={fetchRequests}>
-                       {/* Inject Bids UI for Requester */}
                        {req.status === 'pending' && req.bids?.length > 0 && (
                            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
                                <h4 className="font-bold text-sm mb-2 text-slate-500">Runner Bids:</h4>
@@ -680,7 +701,7 @@ function TaskCard({ task, onAction, actionLabel, children, user, refresh }) {
         
         <div className="space-y-2 text-sm text-slate-500 dark:text-slate-400 mb-6 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
           <div className="flex items-center gap-2"><MapPin size={16}/> <span className="font-semibold">{task.location}</span></div>
-          <div className="flex items-center gap-2"><Clock size={16}/> <span>{new Date(task.timeline).toLocaleString()}</span></div>
+          <div className="flex items-center gap-2"><Clock size={16}/> <span>{new Date(task.timeline).toLocaleString([], { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span></div>
           <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
              <div className="flex items-center gap-2"><User size={16}/> <span>Req: {showRequesterName ? task.requester : 'Hidden until accepted'}</span></div>
              <div className="flex items-center gap-2 mt-1"><Truck size={16}/> <span>Run: {task.runner || 'None'}</span></div>
