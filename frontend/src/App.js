@@ -15,7 +15,9 @@ const getImgUrl = (path) => {
     if (path.startsWith('http') || path.startsWith('data:')) { 
         return path;
     }
-    return `${API_URL}${path}`; 
+    // FIX: Remove '/api' from the URL so it correctly points to '/uploads/...'
+    const BASE_DOMAIN = API_URL.replace('/api', '');
+    return `${BASE_DOMAIN}${path}`; 
 };
 
 export default function App() {
@@ -212,10 +214,10 @@ function LandingPage({ setView, darkMode, setDarkMode }) {
              
              {/* The Image Element */}
              <img 
-               src="C:\Users\marion.DESKTOP-P12NOO0\Documents\Maroundi_Project\landing page.jpeg" 
-               alt="Delivery Rider on Scooter" 
-               className="relative z-10 w-full h-auto object-cover aspect-square rounded-[3rem] shadow-2xl border-4 border-white dark:border-slate-700 transform hover:-translate-y-4 hover:rotate-2 transition-transform duration-500"
-             />
+              src="/landing-hero.jpeg" 
+              alt="Maroundi Errand Runner" 
+              className="relative z-10 w-full h-auto object-cover aspect-square rounded-[3rem] shadow-2xl border-4 border-white dark:border-slate-700 transform hover:-translate-y-4 hover:rotate-2 transition-transform duration-500"
+            />
           </div>
 
         </div>
