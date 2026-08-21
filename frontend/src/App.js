@@ -120,34 +120,35 @@ export default function App() {
 }
 
 // --- RATING MODAL ---
-function RatingModal({ task, user, onClose }) {
+function RatingModal({ task, user, onClose, showPopup }) {
   const [score, setScore] = useState(0);
   const [comment, setComment] = useState('');
   
   const handleSubmit = async () => {
-    if(score === 0) return alert("Please select a star rating.");
+    if(score === 0) return showPopup("Please select a star rating.", "error");
     const target = user.role === 'requester' ? task.runner : task.requester;
     await axios.post(`${API_URL}/rate`, { task_id: task.id, role: user.role, target, score, comment });
+    showPopup(`Review submitted for ${target}!`, "success");
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl max-w-md w-full shadow-2xl text-center">
-        <h2 className="text-2xl font-bold mb-2 dark:text-white">Task Completed!</h2>
-        <p className="text-slate-500 dark:text-slate-400 mb-6 text-sm">Please rate {user.role === 'requester' ? 'Runner' : 'Requester'} <b>{user.role === 'requester' ? task.runner : task.requester}</b> for task "{task.title}".</p>
+    <div className="fixed inset-0 bg-deepslate/60 z-[100] flex items-center justify-center p-4 backdrop-blur-md">
+      <div className="glass-modal p-10 max-w-md w-full text-center">
+        <h2 className="text-3xl font-display font-bold mb-2 dark:text-white">Task Completed!</h2>
+        <p className="text-slate-500 dark:text-slate-300 mb-8 font-medium">Please rate {user.role === 'requester' ? 'Runner' : 'Requester'} <b className="text-royal dark:text-sky">{user.role === 'requester' ? task.runner : task.requester}</b>.</p>
         
-        <div className="flex justify-center gap-2 mb-6">
+        <div className="flex justify-center gap-3 mb-8">
           {[1,2,3,4,5].map(num => (
-             <button key={num} onClick={() => setScore(num)} className={`p-3 rounded-xl transition-all ${score >= num ? 'bg-yellow-400 text-white shadow-lg scale-110' : 'bg-slate-100 dark:bg-slate-700 text-slate-400'}`}>
-               <Star size={24} fill={score >= num ? "currentColor" : "none"} />
+             <button key={num} onClick={() => setScore(num)} className={`p-4 rounded-2xl transition-all transform hover:scale-110 ${score >= num ? 'bg-gradient-to-br from-amber to-orange text-white shadow-lg shadow-orange/30' : 'bg-slate-100 dark:bg-slate-700 text-slate-300 dark:text-slate-500'}`}>
+               <Star size={28} fill={score >= num ? "currentColor" : "none"} />
              </button>
           ))}
         </div>
 
-        <textarea className="w-full p-4 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-white mb-6 focus:ring-2 focus:ring-emerald-500 outline-none resize-none" rows="3" placeholder="Additional comments (optional)..." onChange={e => setComment(e.target.value)}></textarea>
+        <textarea className="w-full p-4 rounded-2xl border border-slate-200 dark:border-slate-600 dark:bg-slate-800/50 dark:text-white mb-6 focus:ring-2 focus:ring-royal outline-none resize-none shadow-inner" rows="3" placeholder="Additional comments (optional)..." onChange={e => setComment(e.target.value)}></textarea>
         
-        <button onClick={handleSubmit} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-xl font-bold shadow-lg">Submit Review</button>
+        <button onClick={handleSubmit} className="w-full py-4 btn-3d-success">Submit Review</button>
       </div>
     </div>
   );
@@ -156,25 +157,47 @@ function RatingModal({ task, user, onClose }) {
 // --- LANDING & AUTH ---
 function LandingPage({ setView, darkMode, setDarkMode }) {
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
-      <div className="absolute top-4 right-4 z-50 flex gap-4 items-center">
-        <button onClick={() => setDarkMode(!darkMode)} className="p-2 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 rounded-full"><Sun size={20}/></button>
-        <button onClick={() => setView('login')} className="font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 px-5 py-2 rounded-xl">Log In</button>
+    <div className="min-h-screen flex flex-col transition-colors duration-500 bg-gradient-to-br from-sky-50 via-slate-50 to-emerald-50 dark:from-deepslate dark:via-slate-800 dark:to-deepslate">
+      
+      <div className="absolute top-6 right-6 z-50 flex gap-4 items-center">
+        <button onClick={() => setDarkMode(!darkMode)} className="p-3 bg-white/50 dark:bg-slate-800/50 backdrop-blur border border-white/20 dark:border-slate-600/50 rounded-full shadow-lg hover:-translate-y-1 transition-transform">
+          {darkMode ? <Sun size={20} className="text-amber"/> : <Moon size={20} className="text-slate-600"/>}
+        </button>
+        <button onClick={() => setView('login')} className="font-bold text-royal dark:text-sky bg-white/80 dark:bg-slate-800/80 backdrop-blur shadow-lg px-6 py-3 rounded-2xl hover:-translate-y-1 transition-transform">Log In</button>
       </div>
-      <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
-        <h1 className="text-5xl md:text-7xl font-black mb-4 dark:text-white">Chapa Errands <span className="text-emerald-500">Na Maroundi</span></h1>
-        <p className="text-xl mb-12 text-slate-500 max-w-2xl">Verified runners handling your physical hustle securely.</p>
-        <div className="flex flex-col sm:flex-row gap-6 max-w-3xl w-full">
-           <div className="flex-1 p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-xl cursor-pointer hover:scale-105 transition-transform" onClick={() => setView('register-req')}>
-             <User className="w-12 h-12 text-blue-500 mb-4 mx-auto"/>
-             <h3 className="text-2xl font-bold mb-2 dark:text-white">Customer</h3>
-             <button className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl mt-4">Join as Requester</button>
-           </div>
-           <div className="flex-1 p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-xl cursor-pointer hover:scale-105 transition-transform" onClick={() => setView('register-run')}>
-             <Truck className="w-12 h-12 text-emerald-500 mb-4 mx-auto"/>
-             <h3 className="text-2xl font-bold mb-2 dark:text-white">Runner</h3>
-             <button className="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl mt-4">Apply as Runner</button>
-           </div>
+
+      <div className="flex-1 flex flex-col items-center justify-center text-center p-6 relative overflow-hidden">
+        {/* Animated Gradient Mesh Blobs */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-sky/20 dark:bg-sky/10 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-mint/20 dark:bg-mint/10 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse" style={{animationDelay: '2s'}}></div>
+
+        <div className="relative z-10 w-full max-w-4xl mx-auto">
+          <h1 className="text-6xl md:text-8xl font-black mb-6 dark:text-white tracking-tight drop-shadow-sm">
+            Chapa Errands <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald to-mint">Na Maroundi</span>
+          </h1>
+          <p className="text-xl mb-12 text-slate-600 dark:text-slate-300 font-medium">Verified runners handling your physical hustle securely.</p>
+          
+          <div className="flex flex-col sm:flex-row gap-8 px-4">
+             {/* Customer 3D Card */}
+             <div className="flex-1 glass-card p-10 cursor-pointer hover:-translate-y-3 transition-transform duration-300 group" onClick={() => setView('register-req')}>
+               <div className="w-24 h-24 bg-gradient-to-br from-sky to-royal rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl transform group-hover:rotate-6 transition-transform">
+                 <User className="w-12 h-12 text-white"/>
+               </div>
+               <h3 className="text-3xl font-display font-bold mb-2 dark:text-white">Customer</h3>
+               <p className="text-slate-500 dark:text-slate-400 mb-8 font-medium">I need an errand sorted.</p>
+               <button className="w-full py-4 btn-3d-primary">Join as Requester</button>
+             </div>
+
+             {/* Runner 3D Card */}
+             <div className="flex-1 glass-card p-10 cursor-pointer hover:-translate-y-3 transition-transform duration-300 group" onClick={() => setView('register-run')}>
+               <div className="w-24 h-24 bg-gradient-to-br from-mint to-emerald rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl transform group-hover:-rotate-6 transition-transform">
+                 <Truck className="w-12 h-12 text-white"/>
+               </div>
+               <h3 className="text-3xl font-display font-bold mb-2 dark:text-white">Runner</h3>
+               <p className="text-slate-500 dark:text-slate-400 mb-8 font-medium">I want to earn running errands.</p>
+               <button className="w-full py-4 btn-3d-success">Apply as Runner</button>
+             </div>
+          </div>
         </div>
       </div>
     </div>
