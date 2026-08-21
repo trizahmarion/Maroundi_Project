@@ -214,7 +214,7 @@ function LandingPage({ setView, darkMode, setDarkMode }) {
              
              {/* The Image Element */}
              <img 
-              src="/landing-hero.jpeg" 
+              src="/landing page.jpeg" 
               alt="Maroundi Errand Runner" 
               className="relative z-10 w-full h-auto object-cover aspect-square rounded-[3rem] shadow-2xl border-4 border-white dark:border-slate-700 transform hover:-translate-y-4 hover:rotate-2 transition-transform duration-500"
             />
