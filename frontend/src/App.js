@@ -157,7 +157,7 @@ function RatingModal({ task, user, onClose, showPopup }) {
 // --- LANDING & AUTH ---
 function LandingPage({ setView, darkMode, setDarkMode }) {
   return (
-    <div className="min-h-screen flex flex-col transition-colors duration-500 bg-gradient-to-br from-sky-50 via-slate-50 to-emerald-50 dark:from-deepslate dark:via-slate-800 dark:to-deepslate">
+    <div className="min-h-screen flex flex-col transition-colors duration-500 bg-gradient-to-br from-sky-50 via-slate-50 to-emerald-50 dark:from-deepslate dark:via-slate-800 dark:to-deepslate overflow-hidden">
       
       <div className="absolute top-6 right-6 z-50 flex gap-4 items-center">
         <button onClick={() => setDarkMode(!darkMode)} className="p-3 bg-white/50 dark:bg-slate-800/50 backdrop-blur border border-white/20 dark:border-slate-600/50 rounded-full shadow-lg hover:-translate-y-1 transition-transform">
@@ -166,38 +166,58 @@ function LandingPage({ setView, darkMode, setDarkMode }) {
         <button onClick={() => setView('login')} className="font-bold text-royal dark:text-sky bg-white/80 dark:bg-slate-800/80 backdrop-blur shadow-lg px-6 py-3 rounded-2xl hover:-translate-y-1 transition-transform">Log In</button>
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center text-center p-6 relative overflow-hidden">
-        {/* Animated Gradient Mesh Blobs */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-sky/20 dark:bg-sky/10 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-mint/20 dark:bg-mint/10 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse" style={{animationDelay: '2s'}}></div>
+      {/* Animated Gradient Mesh Blobs */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-sky/20 dark:bg-sky/10 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse"></div>
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-mint/20 dark:bg-mint/10 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse" style={{animationDelay: '2s'}}></div>
 
-        <div className="relative z-10 w-full max-w-4xl mx-auto">
-          <h1 className="text-6xl md:text-8xl font-black mb-6 dark:text-white tracking-tight drop-shadow-sm">
-            Chapa Errands <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald to-mint">Na Maroundi</span>
-          </h1>
-          <p className="text-xl mb-12 text-slate-600 dark:text-slate-300 font-medium">Verified runners handling your physical hustle securely.</p>
+      <div className="flex-1 flex flex-col justify-center relative z-10 w-full max-w-7xl mx-auto px-6 py-12">
+        <div className="flex flex-col lg:flex-row items-center gap-12">
           
-          <div className="flex flex-col sm:flex-row gap-8 px-4">
-             {/* Customer 3D Card */}
-             <div className="flex-1 glass-card p-10 cursor-pointer hover:-translate-y-3 transition-transform duration-300 group" onClick={() => setView('register-req')}>
-               <div className="w-24 h-24 bg-gradient-to-br from-sky to-royal rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl transform group-hover:rotate-6 transition-transform">
-                 <User className="w-12 h-12 text-white"/>
+          {/* LEFT COLUMN: Text and Cards */}
+          <div className="flex-1 text-center lg:text-left">
+            <h1 className="text-6xl md:text-7xl font-black mb-6 dark:text-white tracking-tight drop-shadow-sm">
+              Chapa Errands <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald to-mint">Na Maroundi</span>
+            </h1>
+            <p className="text-xl mb-10 text-slate-600 dark:text-slate-300 font-medium max-w-xl mx-auto lg:mx-0">
+              Verified runners handling your physical hustle securely.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-6">
+               {/* Customer 3D Card */}
+               <div className="flex-1 glass-card p-8 cursor-pointer hover:-translate-y-3 transition-transform duration-300 group" onClick={() => setView('register-req')}>
+                 <div className="w-20 h-20 bg-gradient-to-br from-sky to-royal rounded-3xl flex items-center justify-center mx-auto lg:mx-0 mb-6 shadow-xl transform group-hover:rotate-6 transition-transform">
+                   <User className="w-10 h-10 text-white"/>
+                 </div>
+                 <h3 className="text-2xl font-display font-bold mb-2 dark:text-white">Customer</h3>
+                 <p className="text-slate-500 dark:text-slate-400 mb-6 font-medium text-sm">I need an errand sorted.</p>
+                 <button className="w-full py-3 btn-3d-primary">Join as Requester</button>
                </div>
-               <h3 className="text-3xl font-display font-bold mb-2 dark:text-white">Customer</h3>
-               <p className="text-slate-500 dark:text-slate-400 mb-8 font-medium">I need an errand sorted.</p>
-               <button className="w-full py-4 btn-3d-primary">Join as Requester</button>
-             </div>
 
-             {/* Runner 3D Card */}
-             <div className="flex-1 glass-card p-10 cursor-pointer hover:-translate-y-3 transition-transform duration-300 group" onClick={() => setView('register-run')}>
-               <div className="w-24 h-24 bg-gradient-to-br from-mint to-emerald rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl transform group-hover:-rotate-6 transition-transform">
-                 <Truck className="w-12 h-12 text-white"/>
+               {/* Runner 3D Card */}
+               <div className="flex-1 glass-card p-8 cursor-pointer hover:-translate-y-3 transition-transform duration-300 group" onClick={() => setView('register-run')}>
+                 <div className="w-20 h-20 bg-gradient-to-br from-mint to-emerald rounded-3xl flex items-center justify-center mx-auto lg:mx-0 mb-6 shadow-xl transform group-hover:-rotate-6 transition-transform">
+                   <Truck className="w-10 h-10 text-white"/>
+                 </div>
+                 <h3 className="text-2xl font-display font-bold mb-2 dark:text-white">Runner</h3>
+                 <p className="text-slate-500 dark:text-slate-400 mb-6 font-medium text-sm">I want to earn running errands.</p>
+                 <button className="w-full py-3 btn-3d-success">Apply as Runner</button>
                </div>
-               <h3 className="text-3xl font-display font-bold mb-2 dark:text-white">Runner</h3>
-               <p className="text-slate-500 dark:text-slate-400 mb-8 font-medium">I want to earn running errands.</p>
-               <button className="w-full py-4 btn-3d-success">Apply as Runner</button>
-             </div>
+            </div>
           </div>
+
+          {/* RIGHT COLUMN: Floating Hero Image */}
+          <div className="flex-1 hidden md:flex justify-center relative w-full max-w-lg">
+             {/* 3D Glowing Backdrop for the image */}
+             <div className="absolute inset-0 bg-gradient-to-tr from-emerald/30 to-sky/30 rounded-[3rem] transform rotate-3 animate-pulse blur-xl"></div>
+             
+             {/* The Image Element */}
+             <img 
+               src="https://images.unsplash.com/photo-1555421689-491a97ff2040?auto=format&fit=crop&w=800&q=80" 
+               alt="Delivery Rider on Scooter" 
+               className="relative z-10 w-full h-auto object-cover aspect-square rounded-[3rem] shadow-2xl border-4 border-white dark:border-slate-700 transform hover:-translate-y-4 hover:rotate-2 transition-transform duration-500"
+             />
+          </div>
+
         </div>
       </div>
     </div>
